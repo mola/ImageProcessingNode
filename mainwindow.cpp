@@ -7,6 +7,14 @@
 #include "model/ImageShowModel.hpp"
 #include "model/monofilter.h"
 #include "model/thresholdfilter.h"
+#include "model/histogram.h"
+#include "model/spatialfilter.h"
+#include "model/sobelfilter.h"
+#include "model/scaler.h"
+#include "model/erosionfilter.h"
+#include "model/delatefilter.h"
+#include "model/segmentation.h"
+#include "model/boundryextraction.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -21,6 +29,14 @@ MainWindow::MainWindow(QWidget *parent) :
     DataModelRegistry::registerModel<MonoFilter>();
 
     DataModelRegistry::registerModel<ThresholdFilter>();
+    DataModelRegistry::registerModel<Histogram>();
+    DataModelRegistry::registerModel<SpatialFilter>();
+    DataModelRegistry::registerModel<SobelFilter>();
+    DataModelRegistry::registerModel<Scaler>();
+    DataModelRegistry::registerModel<ErosionFilter>();
+    DataModelRegistry::registerModel<DilationFilter>();
+    DataModelRegistry::registerModel<Segmentation>();
+    DataModelRegistry::registerModel<BoundryExtraction>();
 
     mScene = new FlowScene();
     mView = new FlowView(mScene);

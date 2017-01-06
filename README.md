@@ -20,6 +20,4 @@ For Node using [nodeeditor](https://github.com/paceholder/nodeeditor)
 		* preview Image
 		
 ### Roadmap
-
-
-##
+	Learing basic image processing and impelement basic filter

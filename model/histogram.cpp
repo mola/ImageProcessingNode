@@ -1,4 +1,4 @@
-#include "thresholdfilter.h"
+#include "histogram.h"
 
 #include <QtCore/QEvent>
 #include <QtCore/QDir>
@@ -8,7 +8,7 @@
 
 #include "PixmapData.hpp"
 
-ThresholdFilter::ThresholdFilter()
+Histogram::Histogram()
     :_label(new QLabel("Image will appear here"))
 {
 
@@ -37,11 +37,11 @@ ThresholdFilter::ThresholdFilter()
     layout->addWidget(_slider);
 }
 
-ThresholdFilter::~ThresholdFilter()
+Histogram::~Histogram()
 {
 }
 
-unsigned int ThresholdFilter::nPorts(PortType portType) const
+unsigned int Histogram::nPorts(PortType portType) const
 {
     unsigned int result = 1;
 
@@ -61,17 +61,17 @@ unsigned int ThresholdFilter::nPorts(PortType portType) const
     return result;
 }
 
-NodeDataType ThresholdFilter::dataType(PortType portType, PortIndex portIndex) const
+NodeDataType Histogram::dataType(PortType portType, PortIndex portIndex) const
 {
     return PixmapData().type();
 }
 
-std::shared_ptr<NodeData> ThresholdFilter::outData(PortIndex port)
+std::shared_ptr<NodeData> Histogram::outData(PortIndex port)
 {
     return _nodeData;
 }
 
-void ThresholdFilter::setInData(std::shared_ptr<NodeData> nodeData, PortIndex port)
+void Histogram::setInData(std::shared_ptr<NodeData> nodeData, PortIndex port)
 {
 //    _nodeData = nodeData;
 
@@ -83,28 +83,41 @@ void ThresholdFilter::setInData(std::shared_ptr<NodeData> nodeData, PortIndex po
       d->setSourceImage( inda->image() );
 
       computingStarted();
+
+
       QImage pix = inda->image();
       QImage res = QImage(pix.width(), pix.height(), pix.format());
 
-      int value = _slider->value();
+      uint TotalPixel = pix.width() * pix.height();
+
       for (int x=0; x<pix.width(); x++)
           for (int y=0; y<pix.height(); y++)
           {
               QColor a = pix.pixelColor( x,y);
-              if (a.red() < value )
-                  a.setRed( 0 );
+              if (mColorCounter.contains( a.value() ))
+                  mColorCounter[a.value()] += 1;
               else
-                  a.setRed( 255 );
+                  mColorCounter[a.value()] = 1;
+          }
 
-              if (a.green() < value )
-                  a.setGreen( 0 );
-              else
-                  a.setGreen( 255 );
 
-              if (a.blue() < value )
-                  a.setBlue( 0 );
-              else
-                  a.setBlue( 255 );
+      QHashIterator<int, int> i( mColorCounter );
+       while (i.hasNext()) {
+           mProbabilitydistribution[i.key()] = (double)TotalPixel/(double)i.value();
+           i.next();
+       }
+
+
+      for (int x=0; x<pix.width(); x++)
+          for (int y=0; y<pix.height(); y++)
+          {
+              QColor a = pix.pixelColor( x,y);
+              if (a.red() < _slider->value() )
+                  a.setRed(_slider->value() );
+              if (a.green() < _slider->value() )
+                  a.setGreen(_slider->value() );
+              if (a.blue() < _slider->value() )
+                  a.setBlue( _slider->value() );
 
               QColor b ( a.red(), a.green(), a.blue(), 255 );
               res.setPixel(x, y, b.rgba() );
@@ -127,7 +140,7 @@ void ThresholdFilter::setInData(std::shared_ptr<NodeData> nodeData, PortIndex po
     emit dataUpdated(0);
 }
 
-void ThresholdFilter::onSliderChange(int value)
+void Histogram::onSliderChange(int value)
 {
     auto d = std::dynamic_pointer_cast<PixmapData>(_nodeData);
     QImage pix = d->sourceImage();
@@ -138,19 +151,11 @@ void ThresholdFilter::onSliderChange(int value)
         {
             QColor a = pix.pixelColor( x,y);
             if (a.red() < value )
-                a.setRed( 0 );
-            else
-                a.setRed( 255 );
-
+                a.setRed( value );
             if (a.green() < value )
-                a.setGreen( 0 );
-            else
-                a.setGreen( 255 );
-
+                a.setGreen( value );
             if (a.blue() < value )
-                a.setBlue( 0 );
-            else
-                a.setBlue( 255 );
+                a.setBlue( value );
 
             QColor b ( a.red(), a.green(), a.blue(), 255 );
             res.setPixel(x, y, b.rgba() );
@@ -168,7 +173,7 @@ void ThresholdFilter::onSliderChange(int value)
 
 }
 
-bool ThresholdFilter::eventFilter(QObject *object, QEvent *event)
+bool Histogram::eventFilter(QObject *object, QEvent *event)
 {
     if (object == _label)
     {

@@ -39,7 +39,15 @@ SOURCES += main.cpp\
     model/ImageLoaderModel.cpp \
     model/ImageShowModel.cpp \
     model/monofilter.cpp \
-    model/thresholdfilter.cpp
+    model/thresholdfilter.cpp \
+    model/histogram.cpp \
+    model/spatialfilter.cpp \
+    model/sobelfilter.cpp \
+    model/scaler.cpp \
+    model/erosionfilter.cpp \
+    model/delatefilter.cpp \
+    model/segmentation.cpp \
+    model/boundryextraction.cpp
 
 HEADERS  += mainwindow.h \
     node/Compiler.hpp \
@@ -77,6 +85,14 @@ HEADERS  += mainwindow.h \
     model/ImageShowModel.hpp \
     model/PixmapData.hpp \
     model/monofilter.h \
-    model/thresholdfilter.h
+    model/thresholdfilter.h \
+    model/histogram.h \
+    model/spatialfilter.h \
+    model/sobelfilter.h \
+    model/scaler.h \
+    model/erosionfilter.h \
+    model/delatefilter.h \
+    model/segmentation.h \
+    model/boundryextraction.h
 
 FORMS    += mainwindow.ui
